@@ -1,3 +1,0 @@
-/nfs/homes/alprival/42_project/lem-in/build/CMakeFiles/lem-in.dir
-/nfs/homes/alprival/42_project/lem-in/build/CMakeFiles/edit_cache.dir
-/nfs/homes/alprival/42_project/lem-in/build/CMakeFiles/rebuild_cache.dir
