@@ -94,9 +94,36 @@ t_node *find_node(t_node **nodes, char *id)
     return(NULL);
 }
 
-t_node *create_node_map(char **link, t_node **nodes)
+t_node ** add_start_nodes(t_node **start_nodes, t_node *add_node)
+{
+    t_node **new_start_nodes = NULL;
+    int i = 0;
+
+    if (!start_nodes)
+    {
+        new_start_nodes = malloc(sizeof(t_node*) * 2);
+        new_start_nodes[0] = add_node;
+        new_start_nodes[1] = NULL;
+    }
+    else
+    {
+        new_start_nodes = malloc(sizeof(t_node*) * (get_linked_node_len(start_nodes)+2));
+        while(start_nodes[i])
+        {
+            new_start_nodes[i] = start_nodes[i];
+            i++;
+        }
+        new_start_nodes[i] = add_node;
+        new_start_nodes[i + 1] = NULL;
+        free(start_nodes);
+    }
+    return (new_start_nodes);
+}
+
+t_node ** create_node_map(char **link, t_node **nodes)
 {
     int i = 0;
+    t_node **start_nodes = NULL;
 
     while (link[i])
     {
@@ -104,8 +131,14 @@ t_node *create_node_map(char **link, t_node **nodes)
         t_node *second_link = find_node(nodes, link[i][1]);
         if (!first_link || !second_link)
             return(NULL);
-        link_node(first_link, second_link);
     }
+    i = 0;
+    while (nodes[i])
+    {
+       if (nodes[i]->type == 'S')
+        start_nodes = add_start_nodes(start_nodes, nodes[i]);
+    }
+    return(start_nodes);
 }
 
 int main()
