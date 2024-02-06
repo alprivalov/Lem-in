@@ -52,6 +52,8 @@ char *ft_str_cat(char *src, char *dst)
     len = ft_strlen(src) + ft_strlen(dst);
     char *output = malloc(sizeof(char) * (len + 1));
     int i = 0;
+    if(!dst)
+        return NULL;
     while (dst[i])
     {
         output[i] = dst[i];

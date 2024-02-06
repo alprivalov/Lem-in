@@ -28,10 +28,7 @@ int get_linked_node_len(t_node **linked_nodes)
     if (linked_nodes)
     {
         while (linked_nodes[i])
-        {
-            ++linked_nodes;
             i++;
-        }
     }
     return (i);
 }
@@ -47,7 +44,7 @@ void add_link(t_node *src_node, t_node *add_node)
     }
     else
     {
-        t_node **new_src_node_link = malloc(sizeof(t_node *) * (get_linked_node_len(src_node->linked_nodes) + 1));
+        t_node **new_src_node_link = malloc(sizeof(t_node *) * (get_linked_node_len(src_node->linked_nodes) + 2));
         while (src_node->linked_nodes[i])
         {
             new_src_node_link[i] = src_node->linked_nodes[i];
@@ -207,21 +204,21 @@ void initStructs(t_node **node, t_node **links, char *buff)
             {
                 commentType = 'S';
                 getLenTill(buff + i, '\n',&i);
-                printf("start: %d\n", i);
+                printf("start\n");
             }
             // searching for end data:
             else if (ft_strcmp(buff + i, "##end"))
             {
                 commentType = 'E';
                 getLenTill(buff + i, '\n',&i);
-                printf("end: %d\n", i);
+                printf("end\n");
             }
             // searching for comment data:
             else
             {
                 commentType = 'C';
                 getLenTill(buff + i, '\n',&i);
-                printf("comment , i : %d\n", i);
+                printf("comment \n");
             }
         }
         type = getType(buff + i);
@@ -230,6 +227,7 @@ void initStructs(t_node **node, t_node **links, char *buff)
             char *id = getIdTill(buff + i, &i, ' ');
             int x = getPosTill(buff + i, &i, ' ');
             int y = getPosTill(buff + i, &i, '\n');
+            printf("room : %s %d %d \ttype: %c\n",  id,x,y,commentType);
             t_node *createdNode = create_new_node(x, y, id, commentType);
             reAllocStruct(&node, numberOfNodes, createdNode);
             numberOfNodes++;
@@ -240,6 +238,7 @@ void initStructs(t_node **node, t_node **links, char *buff)
             char *id_end = getIdTill(buff + i, &i, '\n');
             t_node *begin_node = find_node(node, id_begin);
             t_node *end_node = find_node(node, id_end);
+            printf("Link : %s-%s \ttype: %c\n", id_begin,id_end, commentType);
             free(id_begin);
             free(id_end);
             if (begin_node == NULL || end_node == NULL)
