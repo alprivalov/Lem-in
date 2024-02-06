@@ -64,19 +64,19 @@ void link_node(t_node *first_node, t_node *second_node)
     add_link(second_node, first_node);
 }
 
-t_node *find_node(t_node **nodes, char *id)
+t_node *find_node(t_node ***nodes, char *id)
 {
     int i = 0;
-    while (nodes[i])
+    while ((*nodes)[i])
     {
-        if (ft_strcmp(nodes[i]->id, id) == 1)
-            return (nodes[i]);
+        if (ft_strcmp((*nodes)[i]->id, id) == 1)
+            return ((*nodes)[i]);
         i++;
     }
     return (NULL);
 }
 
-t_node *create_node_map(char ***link, t_node **nodes)
+t_node *create_node_map(char ***link, t_node ***nodes)
 {
     int i = 0;
 
@@ -130,8 +130,7 @@ void reAllocStruct(t_node ***node, int size, t_node *createdNode)
     }
     new_node[size] = createdNode;
     new_node[size + 1] = 0;
-    if (!(*node))
-        free((*node));
+    free((*node));
     (*node) = new_node;
 }
 
@@ -160,9 +159,7 @@ char *getIdTill(char *buff, int *index, char c)
         i++;
     }
     if (output && (output[0] == 'L' || output[0] == '#'))
-    {
         exitError(ERROR_NODE_WRONG_NAME);
-    }
     output[i] = '\0';
     return output;
 }
@@ -186,16 +183,18 @@ int getPosTill(char *buff, int *index, char c)
     return output;
 }
 
-void initStructs(t_node **node, t_node **links, char *buff)
+void initStructs(t_node ***node, char *buff)
 {
     int i = 0;
+    t_node **links = NULL;
+
     char commentType;
     int type;
     int numberOfNodes = 0;
     int lenBuffer = ft_strlen(buff);
     if (!buff)
         exitError(0);
-    while (buff[i] && i < lenBuffer)
+    while (i < lenBuffer && buff[i] )
     {
         if (buff[i] == '#')
         {
@@ -218,7 +217,7 @@ void initStructs(t_node **node, t_node **links, char *buff)
             {
                 commentType = 'C';
                 getLenTill(buff + i, '\n',&i);
-                printf("comment \n");
+                printf("comment\n");
             }
         }
         type = getType(buff + i);
@@ -229,7 +228,7 @@ void initStructs(t_node **node, t_node **links, char *buff)
             int y = getPosTill(buff + i, &i, '\n');
             printf("room : %s %d %d \ttype: %c\n",  id,x,y,commentType);
             t_node *createdNode = create_new_node(x, y, id, commentType);
-            reAllocStruct(&node, numberOfNodes, createdNode);
+            reAllocStruct(node, numberOfNodes, createdNode);
             numberOfNodes++;
         }
         else if (type == LINK)
@@ -264,14 +263,20 @@ char *getBufferFromFd(char *fileName)
         fd_buffer = ft_str_cat(tmp_buffer, fd_buffer);
         bytesRead = read(fd, tmp_buffer, sizeof(tmp_buffer));
     }
+    fd_buffer[ft_strlen(fd_buffer)] = '\0';
     return fd_buffer;
 }
 
 int main(int ac, char **av)
 {
-    t_node **rooms = NULL;
-    t_node **links = NULL;
+    t_node **nodes = NULL;
     char *fd_buffer = getBufferFromFd("subject.map");
-    initStructs(rooms, links, fd_buffer);
+    initStructs(&nodes, fd_buffer);
+    for(int i = 0; nodes[i];i++){
+        free(nodes[i]->id);
+        free(nodes[i]->linked_nodes);
+        free(nodes[i]);
+    }
+    free(nodes);
     free(fd_buffer);
 }

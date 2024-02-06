@@ -66,6 +66,7 @@ char *ft_str_cat(char *src, char *dst)
         output[j + i] = src[i];
         i++;
     }
+    output[len] = '\0';
     free(dst);
     return output;
 }
