@@ -9,8 +9,11 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-
+#include "mlx.h"
 #define BUFFER_SIZE 5
+
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
 #define ROOM 1
 #define LINK 2
