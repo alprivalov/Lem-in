@@ -332,15 +332,6 @@ void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int color)
     // calculate dx & dy
     int dx = cX - aX;
     int dy = cY - aY;
-
-    // int bX = cX > aX ? cX - aX : aX - cX ;
-    // int bY = cY > aY ? cY - aY : aY - cY ;
-
-    // int len_ab =  bX > aX ? bX - aX : aX - bX;
-    // int len_ac =  cX > aX ? cX - aX : aX - cX;
-    // float angle = cos(len_ab/len_ac);
-    // printf("%f\n",angle);
-    // calculate steps required for generating pixels
     int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
 
     // calculate increment in x & y for each steps
@@ -358,11 +349,35 @@ void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int color)
     }
 }
 
-int main(int ac, char **av)
+
+typedef struct	s_vars {
+	void	*mlx;
+	void	*win;
+}				t_vars;
+
+int	ft_close_key(int keycode, t_vars *vars)
+{
+	mlx_destroy_window(vars->mlx, vars->win);
+	exit(0);
+}
+
+int	ft_move_keycode(int keycode, t_vars *vars)
+{
+	if (keycode == 65307)
+		ft_close_key(keycode, vars);
+    return 0;
+}
+
+
+int	ft_close_mouse(t_vars *vars)
 {
 
-    void	*mlx;
-	void	*mlx_win;
+	mlx_destroy_window(vars->mlx, vars->win);
+	exit(0);
+}
+int main(int ac, char **av)
+{
+    t_vars  vars;
     int min_dist = 900000000;
     int min_y = 900000000;
     int min_x = 900000000;
@@ -374,15 +389,15 @@ int main(int ac, char **av)
 	t_window	window;
     
     t_node **nodes = NULL;
-    char *fd_buffer = getBufferFromFd("./maps/subject.map");
+    char *fd_buffer = getBufferFromFd("../maps/subject.map");
     initStructs(&nodes, fd_buffer);
     printNodes(nodes);
-    mlx = mlx_init();
-	mlx_win = mlx_new_window(mlx, 1920, 1080, "Hello world!");
-	window.img = mlx_new_image(mlx, 1920, 1080);
+    vars.mlx = mlx_init();
+	vars.win = mlx_new_window(vars.mlx, 1920, 1080, "Hello world!");
+	window.img = mlx_new_image(vars.mlx, 1920, 1080);
 	window.addr = mlx_get_data_addr(window.img, &window.bits_per_pixel, &window.line_length,
 								&window.endian);
-	ft_mlx_pixel_put(&window, 5, 5, 0x00FF0000);
+
     printf("C A CHIER,  %d \n", min_dist);
     for(int i = 0; nodes[i];i++)
     {
@@ -439,8 +454,11 @@ int main(int ac, char **av)
             DDA(window, nodes[i]->x, nodes[i]->y, nodes[i]->linked_nodes[j]->x, nodes[i]->linked_nodes[j]->y, 7,0);
         }
     }
-    mlx_put_image_to_window(mlx, mlx_win, window.img, 0, 0);
-	mlx_loop(mlx);
+    mlx_put_image_to_window(vars.mlx, vars.win, window.img, 0, 0);
+    
+	mlx_hook(vars.win, 2, 1L << 0, ft_move_keycode, &vars);
+	mlx_hook(vars.win, 17, 1L << 2, ft_close_mouse, &vars);
+	mlx_loop(vars.mlx);
     for(int i = 0; nodes[i];i++)
     {
         free(nodes[i]->id);
