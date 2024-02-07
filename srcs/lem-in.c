@@ -290,39 +290,39 @@ void printNodes(t_node ** node){
 }
 
 
-typedef struct	s_data {
+typedef struct	s_window {
 	void	*img;
 	char	*addr;
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
-}				t_data;
+}				t_window;
 
 
-// void	ft_mlx_pixel_put(t_vars *vars, int x, int y, int color)
-// {
-// 	char	*dst;
+void	ft_mlx_pixel_put(t_window *vars, int x, int y, int color)
+{
+	char	*dst;
 
-// 	dst = vars->mlx_datas->addr + (y * vars->mlx_datas->line_length \
-// 		+ x * (vars->mlx_datas->bits_per_pixel / 8));
-// 	if (x >= 0 && y >= 0 && x <= WINDOW_WIDTH && y <= WINDOW_HEIGHT)
-// 		*(unsigned int *)dst = color;
-// }
+	dst = vars->addr + (y * vars->line_length \
+		+ x * (vars->bits_per_pixel / 8));
+	if (x >= 0 && y >= 0 && x <= WINDOW_WIDTH && y <= WINDOW_HEIGHT)
+		*(unsigned int *)dst = color;
+}
 
 int main(int ac, char **av)
 {
 
     void	*mlx;
 	void	*mlx_win;
-	t_data	img;
-
+	t_window	window;
+    
 	mlx = mlx_init();
 	mlx_win = mlx_new_window(mlx, 1920, 1080, "Hello world!");
-	img.img = mlx_new_image(mlx, 1920, 1080);
-	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length,
-								&img.endian);
-	// my_mlx_pixel_put(&img, 5, 5, 0x00FF0000);
-	mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);
+	window.img = mlx_new_image(mlx, 1920, 1080);
+	window.addr = mlx_get_data_addr(window.img, &window.bits_per_pixel, &window.line_length,
+								&window.endian);
+	ft_mlx_pixel_put(&window, 5, 5, 0x00FF0000);
+	mlx_put_image_to_window(mlx, mlx_win, window.img, 0, 0);
 	mlx_loop(mlx);
 
 
