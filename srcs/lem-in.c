@@ -22,7 +22,6 @@ t_node *create_new_node(int x, int y, char *id, char type)
     return (new_node);
 }
 
-
 void exitError(int Error)
 {
     printf("Error : %d\n", Error);
@@ -124,7 +123,6 @@ int getType(char *buff)
     return ERROR_UNDEFINED;
 }
 
-
 void reAllocStruct(t_node ***node, int size, t_node *createdNode)
 {
     t_node **new_node = malloc(sizeof(t_node *) * (size + 2));
@@ -154,7 +152,7 @@ char *getIdTill(char *buff, int *index, char c)
 {
     int i = 0;
     char *output;
-    int len = getLenTill(buff, c,index);
+    int len = getLenTill(buff, c, index);
     output = malloc(sizeof(char) * (len + 1));
     output[len] = '\0';
     while (buff[i] && buff[i] != c)
@@ -172,7 +170,7 @@ int getPosTill(char *buff, int *index, char c)
 {
     int i = 0;
     char *tmp;
-    int len = getLenTill(buff, c,index);
+    int len = getLenTill(buff, c, index);
     tmp = malloc(sizeof(char) * (len + 2));
     while (buff[i] && buff[i] != c)
     {
@@ -198,7 +196,7 @@ void initStructs(t_node ***node, char *buff)
     int lenBuffer = ft_strlen(buff);
     if (!buff)
         exitError(0);
-    while (i < lenBuffer && buff[i] )
+    while (i < lenBuffer && buff[i])
     {
         if (buff[i] == '#')
         {
@@ -206,21 +204,21 @@ void initStructs(t_node ***node, char *buff)
             if (ft_strcmp(buff + i, "##start"))
             {
                 commentType = 'S';
-                getLenTill(buff + i, '\n',&i);
+                getLenTill(buff + i, '\n', &i);
                 printf("start\n");
             }
             // searching for end data:
             else if (ft_strcmp(buff + i, "##end"))
             {
                 commentType = 'E';
-                getLenTill(buff + i, '\n',&i);
+                getLenTill(buff + i, '\n', &i);
                 printf("end\n");
             }
             // searching for comment data:
             else
             {
                 commentType = 'C';
-                getLenTill(buff + i, '\n',&i);
+                getLenTill(buff + i, '\n', &i);
                 printf("comment\n");
             }
         }
@@ -230,7 +228,7 @@ void initStructs(t_node ***node, char *buff)
             char *id = getIdTill(buff + i, &i, ' ');
             int x = getPosTill(buff + i, &i, ' ');
             int y = getPosTill(buff + i, &i, '\n');
-            printf("room : %s %d %d \ttype: %c\n",  id,x,y,commentType);
+            printf("room : %s %d %d \ttype: %c\n", id, x, y, commentType);
             t_node *createdNode = create_new_node(x, y, id, commentType);
             reAllocStruct(node, numberOfNodes, createdNode);
             numberOfNodes++;
@@ -241,7 +239,7 @@ void initStructs(t_node ***node, char *buff)
             char *id_end = getIdTill(buff + i, &i, '\n');
             t_node *begin_node = find_node(node, id_begin);
             t_node *end_node = find_node(node, id_end);
-            printf("Link : %s-%s \ttype: %c\n", id_begin,id_end, commentType);
+            printf("Link : %s-%s \ttype: %c\n", id_begin, id_end, commentType);
             free(id_begin);
             free(id_end);
             if (begin_node == NULL || end_node == NULL)
@@ -269,62 +267,75 @@ char *getBufferFromFd(char *fileName)
         bytesRead = read(fd, tmp_buffer, sizeof(tmp_buffer));
     }
     fd_buffer[ft_strlen(fd_buffer)] = '\0';
-    return fd_buffer;   
+    return fd_buffer;
 }
 
-
-void printNodes(t_node ** node){
-    for(int i = 0; node[i]; i++){
-        printf("node : %s  links : ",node[i]->id);
-        for(int j = 0; node[i]->linked_nodes[j];j++){
-            printf(" %s",node[i]->linked_nodes[j]->id);
+void printNodes(t_node **node)
+{
+    for (int i = 0; node[i]; i++)
+    {
+        printf("node : %s  links : ", node[i]->id);
+        for (int j = 0; node[i]->linked_nodes[j]; j++)
+        {
+            printf(" %s", node[i]->linked_nodes[j]->id);
         }
         printf("\n");
     }
 }
 
-
-typedef struct	s_window {
-	void	*img;
-	char	*addr;
-	int		bits_per_pixel;
-	int		line_length;
-	int		endian;
-}				t_window;
-
-
-void	ft_mlx_pixel_put(t_window *vars, int x, int y, int color)
+typedef struct s_window
 {
-	char	*dst;
+    void *img;
+    char *addr;
+    int bits_per_pixel;
+    int line_length;
+    int endian;
+} t_window;
 
-	dst = vars->addr + (y * vars->line_length \
-		+ x * (vars->bits_per_pixel / 8));
-	if (x >= 0 && y >= 0 && x <= WINDOW_WIDTH && y <= WINDOW_HEIGHT)
-		*(unsigned int *)dst = color;
+void ft_mlx_pixel_put(t_window *vars, int x, int y, int color)
+{
+    char *dst;
+
+    dst = vars->addr + (y * vars->line_length + x * (vars->bits_per_pixel / 8));
+    if (x >= 0 && y >= 0 && x <= WINDOW_WIDTH && y <= WINDOW_HEIGHT)
+        *(unsigned int *)dst = color;
 }
 
 typedef struct s_vec
 {
     int x;
     int y;
-}t_vec;
+} t_vec;
 
-void ft_draw_circle(int x, int y, int r, int line_width , t_window *window)
+void ft_draw_circle(int x, int y, int r, int line_width, t_window *window)
 {
-   int round_area_start_x = x - r;
-   int round_area_start_y = y - r;
-   int round_area_end_x = x + r;
-   int round_area_end_y = y + r;
+    int round_area_start_x = x - r;
+    int round_area_start_y = y - r;
+    int round_area_end_x = x + r;
+    int round_area_end_y = y + r;
 
-    for (int i = round_area_start_x;  i < round_area_end_x ; i++)
-        for (int j = round_area_start_y;  j < round_area_end_y ; j++)
-            if (!(i < 0 || i > 1920 || j < 0 || j > 1080) && ((i-x) * (i-x)) + ((j-y) * (j-y)) < r * r)
+    for (int i = round_area_start_x; i < round_area_end_x; i++)
+        for (int j = round_area_start_y; j < round_area_end_y; j++)
+            if (!(i < 0 || i > 1920 || j < 0 || j > 1080) && ((i - x) * (i - x)) + ((j - y) * (j - y)) < r * r)
                 ft_mlx_pixel_put(window, i, j, 0x00FF0000);
     if (line_width < r)
-        for (int i = round_area_start_x;  i < round_area_end_x ; i++)
-            for (int j = round_area_start_y;  j < round_area_end_y ; j++)
-                if (!(i < 0 || i > 1920 || j < 0 || j > 1080) && ((i-x) * (i-x)) + ((j-y) * (j-y)) < (r-line_width) * (r-line_width))
+        for (int i = round_area_start_x; i < round_area_end_x; i++)
+            for (int j = round_area_start_y; j < round_area_end_y; j++)
+                if (!(i < 0 || i > 1920 || j < 0 || j > 1080) && ((i - x) * (i - x)) + ((j - y) * (j - y)) < (r - line_width) * (r - line_width))
                     ft_mlx_pixel_put(window, i, j, 0xFFFFFFFF);
+}
+
+void test(int x, int y, int r, int line_width, t_window *window)
+{
+    int round_area_start_x = x - r;
+    int round_area_start_y = y - r;
+    int round_area_end_x = x + r;
+    int round_area_end_y = y + r;
+
+    for (int i = round_area_start_x; i < round_area_end_x; i++)
+        for (int j = round_area_start_y; j < round_area_end_y; j++)
+            if (!(i < 0 || i > 1920 || j < 0 || j > 1080) && ((i - x) * (i - x)) + ((j - y) * (j - y)) < (r - line_width) * (r - line_width))
+                ft_mlx_pixel_put(window, i, j, 0xFFFFFFFF);
 }
 
 void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int color)
@@ -343,41 +354,40 @@ void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int color)
     float Y = aY;
     for (int i = 0; i <= steps; i++)
     {
-        ft_draw_circle(X, Y, len,  color , &window);
+        ft_draw_circle(X, Y, len, color, &window);
         X += Xinc; // increment in x at each step
         Y += Yinc; // increment in y at each step
     }
 }
 
-
-typedef struct	s_vars {
-	void	*mlx;
-	void	*win;
-}				t_vars;
-
-int	ft_close_key(int keycode, t_vars *vars)
+typedef struct s_vars
 {
-	mlx_destroy_window(vars->mlx, vars->win);
-	exit(0);
+    void *mlx;
+    void *win;
+} t_vars;
+
+int ft_close_key(int keycode, t_vars *vars)
+{
+    mlx_destroy_window(vars->mlx, vars->win);
+    exit(0);
 }
 
-int	ft_move_keycode(int keycode, t_vars *vars)
+int ft_move_keycode(int keycode, t_vars *vars)
 {
-	if (keycode == 65307)
-		ft_close_key(keycode, vars);
+    if (keycode == 65307)
+        ft_close_key(keycode, vars);
     return 0;
 }
 
-
-int	ft_close_mouse(t_vars *vars)
+int ft_close_mouse(t_vars *vars)
 {
 
-	mlx_destroy_window(vars->mlx, vars->win);
-	exit(0);
+    mlx_destroy_window(vars->mlx, vars->win);
+    exit(0);
 }
 int main(int ac, char **av)
 {
-    t_vars  vars;
+    t_vars vars;
     int min_dist = 900000000;
     int min_y = 900000000;
     int min_x = 900000000;
@@ -386,80 +396,82 @@ int main(int ac, char **av)
     int off_set_x;
     int off_set_y;
     int off_set_dist = 50;
-	t_window	window;
-    
+    t_window window;
+
     t_node **nodes = NULL;
     char *fd_buffer = getBufferFromFd("../maps/subject.map");
     initStructs(&nodes, fd_buffer);
     printNodes(nodes);
     vars.mlx = mlx_init();
-	vars.win = mlx_new_window(vars.mlx, 1920, 1080, "Hello world!");
-	window.img = mlx_new_image(vars.mlx, 1920, 1080);
-	window.addr = mlx_get_data_addr(window.img, &window.bits_per_pixel, &window.line_length,
-								&window.endian);
+    vars.win = mlx_new_window(vars.mlx, 1920, 1080, "Hello world!");
+    window.img = mlx_new_image(vars.mlx, 1920, 1080);
+    window.addr = mlx_get_data_addr(window.img, &window.bits_per_pixel, &window.line_length,
+                                    &window.endian);
 
     printf("C A CHIER,  %d \n", min_dist);
-    for(int i = 0; nodes[i];i++)
+    for (int i = 0; nodes[i]; i++)
     {
-        for(int j = 0; nodes[j]; j++)
+        for (int j = 0; nodes[j]; j++)
         {
             if (nodes[i] != nodes[j] && (nodes[i]->x - nodes[j]->x) * (nodes[i]->x - nodes[j]->x) != 0 && (nodes[i]->y - nodes[j]->y) * (nodes[i]->y - nodes[j]->y) != 0)
             {
                 if ((nodes[i]->x - nodes[j]->x) * (nodes[i]->x - nodes[j]->x) < min_dist)
-                    min_dist =(nodes[i]->x - nodes[j]->x) * (nodes[i]->x - nodes[j]->x);
+                    min_dist = (nodes[i]->x - nodes[j]->x) * (nodes[i]->x - nodes[j]->x);
                 if ((nodes[i]->y - nodes[j]->y) * (nodes[i]->y - nodes[j]->y) < min_dist)
                     min_dist = (nodes[i]->y - nodes[j]->y) * (nodes[i]->y - nodes[j]->y);
             }
         }
     }
-    for(int i = 0; nodes[i];i++)
+    for (int i = 0; nodes[i]; i++)
     {
-        nodes[i]->x = nodes[i]->x/min_dist*off_set_dist;
-        nodes[i]->y = nodes[i]->y/min_dist*off_set_dist;
+        nodes[i]->x = nodes[i]->x / min_dist * off_set_dist;
+        nodes[i]->y = nodes[i]->y / min_dist * off_set_dist;
     }
-    for(int i = 0; nodes[i];i++)
+    for (int i = 0; nodes[i]; i++)
     {
         if (nodes[i]->x < min_x)
             min_x = nodes[i]->x;
         if (nodes[i]->y < min_y)
             min_y = nodes[i]->y;
     }
-    for(int i = 0; nodes[i];i++)
+    for (int i = 0; nodes[i]; i++)
     {
         nodes[i]->x -= min_x;
         nodes[i]->y -= min_y;
     }
-    for(int i = 0; nodes[i];i++)
+    for (int i = 0; nodes[i]; i++)
     {
         if (nodes[i]->x > max_x)
             max_x = nodes[i]->x;
         if (nodes[i]->y > max_y)
             max_y = nodes[i]->y;
     }
-    for(int i = 0; nodes[i];i++)
+    for (int i = 0; nodes[i]; i++)
     {
         nodes[i]->x += (1920 - max_x) / 2;
         nodes[i]->y += (1080 - max_y) / 2;
-        printf("ID : %s = X %d ,Y %d\n", nodes[i]->id ,nodes[i]->x, nodes[i]->y);
+        printf("ID : %s = X %d ,Y %d\n", nodes[i]->id, nodes[i]->x, nodes[i]->y);
     }
-    for(int i = 0; nodes[i];i++)
+    for (int i = 0; nodes[i]; i++)
     {
+        ft_draw_circle(nodes[i]->x, nodes[i]->y, min_dist * off_set_dist * 0.9, min_dist * off_set_dist * 0.1, &window);
         for (int j = 0; nodes[i]->linked_nodes[j]; j++)
         {
-            DDA(window, nodes[i]->x, nodes[i]->y, nodes[i]->linked_nodes[j]->x, nodes[i]->linked_nodes[j]->y, 10,10);
+            DDA(window, nodes[i]->x, nodes[i]->y, nodes[i]->linked_nodes[j]->x, nodes[i]->linked_nodes[j]->y, 10, 10);
+            DDA(window, nodes[i]->x, nodes[i]->y, nodes[i]->linked_nodes[j]->x, nodes[i]->linked_nodes[j]->y, 7, 0);
         }
-        ft_draw_circle(nodes[i]->x, nodes[i]->y, min_dist*off_set_dist*0.9,  min_dist*off_set_dist*0.1 , &window);
-        for (int j = 0; nodes[i]->linked_nodes[j]; j++)
-        {
-            DDA(window, nodes[i]->x, nodes[i]->y, nodes[i]->linked_nodes[j]->x, nodes[i]->linked_nodes[j]->y, 7,0);
-        }
+    }
+
+    for (int i = 0; nodes[i]; i++)
+    {
+        test(nodes[i]->x, nodes[i]->y, min_dist * off_set_dist * 0.9, min_dist * off_set_dist * 0.1, &window);
     }
     mlx_put_image_to_window(vars.mlx, vars.win, window.img, 0, 0);
-    
-	mlx_hook(vars.win, 2, 1L << 0, ft_move_keycode, &vars);
-	mlx_hook(vars.win, 17, 1L << 2, ft_close_mouse, &vars);
-	mlx_loop(vars.mlx);
-    for(int i = 0; nodes[i];i++)
+
+    mlx_hook(vars.win, 2, 1L << 0, ft_move_keycode, &vars);
+    mlx_hook(vars.win, 17, 1L << 2, ft_close_mouse, &vars);
+    mlx_loop(vars.mlx);
+    for (int i = 0; nodes[i]; i++)
     {
         free(nodes[i]->id);
         free(nodes[i]->linked_nodes);
