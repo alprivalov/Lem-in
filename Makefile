@@ -19,7 +19,7 @@ OBJ = $(SRCS:.c=.o)
 
 CC = clang
 
-FLAGS =  -g3
+FLAGS =  -g3 -g
 
 IFLAG = -I$(HEADERDIR)  -Imlx/
 
