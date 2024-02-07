@@ -1,5 +1,6 @@
 #include "../includes/lem-in.h"
 #include "../includes/utils.h"
+#include "math.h"
 
 typedef struct s_node
 {
@@ -308,31 +309,140 @@ typedef struct s_vec
     int y;
 }t_vec;
 
+void ft_draw_circle(int x, int y, int r, int line_width , t_window *window)
+{
+   int round_area_start_x = x - r;
+   int round_area_start_y = y - r;
+   int round_area_end_x = x + r;
+   int round_area_end_y = y + r;
 
+    for (int i = round_area_start_x;  i < round_area_end_x ; i++)
+        for (int j = round_area_start_y;  j < round_area_end_y ; j++)
+            if (!(i < 0 || i > 1920 || j < 0 || j > 1080) && ((i-x) * (i-x)) + ((j-y) * (j-y)) < r * r)
+                ft_mlx_pixel_put(window, i, j, 0x00FF0000);
+    if (line_width < r)
+        for (int i = round_area_start_x;  i < round_area_end_x ; i++)
+            for (int j = round_area_start_y;  j < round_area_end_y ; j++)
+                if (!(i < 0 || i > 1920 || j < 0 || j > 1080) && ((i-x) * (i-x)) + ((j-y) * (j-y)) < (r-line_width) * (r-line_width))
+                    ft_mlx_pixel_put(window, i, j, 0xFFFFFFFF);
+}
+
+void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int color)
+{
+    // calculate dx & dy
+    int dx = cX - aX;
+    int dy = cY - aY;
+
+    // int bX = cX > aX ? cX - aX : aX - cX ;
+    // int bY = cY > aY ? cY - aY : aY - cY ;
+
+    // int len_ab =  bX > aX ? bX - aX : aX - bX;
+    // int len_ac =  cX > aX ? cX - aX : aX - cX;
+    // float angle = cos(len_ab/len_ac);
+    // printf("%f\n",angle);
+    // calculate steps required for generating pixels
+    int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+
+    // calculate increment in x & y for each steps
+    float Xinc = dx / (float)steps;
+    float Yinc = dy / (float)steps;
+
+    // Put pixel for each step
+    float X = aX;
+    float Y = aY;
+    for (int i = 0; i <= steps; i++)
+    {
+        ft_draw_circle(X, Y, len,  color , &window);
+        X += Xinc; // increment in x at each step
+        Y += Yinc; // increment in y at each step
+    }
+}
 
 int main(int ac, char **av)
 {
 
     void	*mlx;
 	void	*mlx_win;
+    int min_dist = 900000000;
+    int min_y = 900000000;
+    int min_x = 900000000;
+    int max_y = -900000000;
+    int max_x = -900000000;
+    int off_set_x;
+    int off_set_y;
+    int off_set_dist = 50;
 	t_window	window;
     
-	mlx = mlx_init();
+    t_node **nodes = NULL;
+    char *fd_buffer = getBufferFromFd("./maps/subject.map");
+    initStructs(&nodes, fd_buffer);
+    printNodes(nodes);
+    mlx = mlx_init();
 	mlx_win = mlx_new_window(mlx, 1920, 1080, "Hello world!");
 	window.img = mlx_new_image(mlx, 1920, 1080);
 	window.addr = mlx_get_data_addr(window.img, &window.bits_per_pixel, &window.line_length,
 								&window.endian);
 	ft_mlx_pixel_put(&window, 5, 5, 0x00FF0000);
-
-	mlx_put_image_to_window(mlx, mlx_win, window.img, 0, 0);
+    printf("C A CHIER,  %d \n", min_dist);
+    for(int i = 0; nodes[i];i++)
+    {
+        for(int j = 0; nodes[j]; j++)
+        {
+            if (nodes[i] != nodes[j] && (nodes[i]->x - nodes[j]->x) * (nodes[i]->x - nodes[j]->x) != 0 && (nodes[i]->y - nodes[j]->y) * (nodes[i]->y - nodes[j]->y) != 0)
+            {
+                if ((nodes[i]->x - nodes[j]->x) * (nodes[i]->x - nodes[j]->x) < min_dist)
+                    min_dist =(nodes[i]->x - nodes[j]->x) * (nodes[i]->x - nodes[j]->x);
+                if ((nodes[i]->y - nodes[j]->y) * (nodes[i]->y - nodes[j]->y) < min_dist)
+                    min_dist = (nodes[i]->y - nodes[j]->y) * (nodes[i]->y - nodes[j]->y);
+            }
+        }
+    }
+    for(int i = 0; nodes[i];i++)
+    {
+        nodes[i]->x = nodes[i]->x/min_dist*off_set_dist;
+        nodes[i]->y = nodes[i]->y/min_dist*off_set_dist;
+    }
+    for(int i = 0; nodes[i];i++)
+    {
+        if (nodes[i]->x < min_x)
+            min_x = nodes[i]->x;
+        if (nodes[i]->y < min_y)
+            min_y = nodes[i]->y;
+    }
+    for(int i = 0; nodes[i];i++)
+    {
+        nodes[i]->x -= min_x;
+        nodes[i]->y -= min_y;
+    }
+    for(int i = 0; nodes[i];i++)
+    {
+        if (nodes[i]->x > max_x)
+            max_x = nodes[i]->x;
+        if (nodes[i]->y > max_y)
+            max_y = nodes[i]->y;
+    }
+    for(int i = 0; nodes[i];i++)
+    {
+        nodes[i]->x += (1920 - max_x) / 2;
+        nodes[i]->y += (1080 - max_y) / 2;
+        printf("ID : %s = X %d ,Y %d\n", nodes[i]->id ,nodes[i]->x, nodes[i]->y);
+    }
+    for(int i = 0; nodes[i];i++)
+    {
+        for (int j = 0; nodes[i]->linked_nodes[j]; j++)
+        {
+            DDA(window, nodes[i]->x, nodes[i]->y, nodes[i]->linked_nodes[j]->x, nodes[i]->linked_nodes[j]->y, 10,10);
+        }
+        ft_draw_circle(nodes[i]->x, nodes[i]->y, min_dist*off_set_dist*0.9,  min_dist*off_set_dist*0.1 , &window);
+        for (int j = 0; nodes[i]->linked_nodes[j]; j++)
+        {
+            DDA(window, nodes[i]->x, nodes[i]->y, nodes[i]->linked_nodes[j]->x, nodes[i]->linked_nodes[j]->y, 7,0);
+        }
+    }
+    mlx_put_image_to_window(mlx, mlx_win, window.img, 0, 0);
 	mlx_loop(mlx);
-    
-    t_node **nodes = NULL;
-    char *fd_buffer = getBufferFromFd("../maps/subject.map");
-    initStructs(&nodes, fd_buffer);
-    printNodes(nodes);
-    
-    for(int i = 0; nodes[i];i++){
+    for(int i = 0; nodes[i];i++)
+    {
         free(nodes[i]->id);
         free(nodes[i]->linked_nodes);
         free(nodes[i]);
