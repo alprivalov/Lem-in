@@ -271,13 +271,6 @@ char *getBufferFromFd(char *fileName)
     return fd_buffer;   
 }
 
-// void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
-// {
-	// char	*dst;
-// 
-	// dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
-	// *(unsigned int*)dst = color;
-// }
 
 void printNodes(t_node ** node){
     for(int i = 0; node[i]; i++){
@@ -309,6 +302,14 @@ void	ft_mlx_pixel_put(t_window *vars, int x, int y, int color)
 		*(unsigned int *)dst = color;
 }
 
+typedef struct s_vec
+{
+    int x;
+    int y;
+}t_vec;
+
+
+
 int main(int ac, char **av)
 {
 
@@ -322,10 +323,10 @@ int main(int ac, char **av)
 	window.addr = mlx_get_data_addr(window.img, &window.bits_per_pixel, &window.line_length,
 								&window.endian);
 	ft_mlx_pixel_put(&window, 5, 5, 0x00FF0000);
+
 	mlx_put_image_to_window(mlx, mlx_win, window.img, 0, 0);
 	mlx_loop(mlx);
-
-
+    
     t_node **nodes = NULL;
     char *fd_buffer = getBufferFromFd("../maps/subject.map");
     initStructs(&nodes, fd_buffer);
