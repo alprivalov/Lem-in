@@ -260,7 +260,7 @@ char *getBufferFromFd(char *fileName)
     int fd = open(fileName, O_RDWR);
     if (fd == -1)
         exitError(ERROR_CANNOT_READ_FD);
-    tmp_buffer[BUFFER_SIZE] = '\0';
+    tmp_buffer[BUFFER_SIZE + 1] = '\0';
     bytesRead = read(fd, tmp_buffer, sizeof(tmp_buffer));
     while (bytesRead)
     {
