@@ -271,12 +271,22 @@ char *getBufferFromFd(char *fileName)
     return fd_buffer;   
 }
 
+void printNodes(t_node ** node){
+    for(int i = 0; node[i]; i++){
+        printf("node : %s  links : ",node[i]->id);
+        for(int j = 0; node[i]->linked_nodes[j];j++){
+            printf(" %s",node[i]->linked_nodes[j]->id);
+        }
+        printf("\n");
+    }
+}
 
 int main(int ac, char **av)
 {
     t_node **nodes = NULL;
     char *fd_buffer = getBufferFromFd("../maps/subject.map");
     initStructs(&nodes, fd_buffer);
+    printNodes(nodes);
     for(int i = 0; nodes[i];i++){
         free(nodes[i]->id);
         free(nodes[i]->linked_nodes);
