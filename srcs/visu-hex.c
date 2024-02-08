@@ -81,20 +81,18 @@ void create_node_map(char ***link, t_node ***nodes)
     }
 }
 
-
 void printNodes(t_node **node)
 {
     for (int i = 0; node[i]; i++)
     {
-        printf("node : %s\tlinks : ", node[i]->id);
+        printf("node : %s  links : ", node[i]->id);
         for (int j = 0; node[i]->linked_nodes[j]; j++)
         {
             printf(" %s", node[i]->linked_nodes[j]->id);
         }
-        printf("\t\t type: %c\n",node[i]->type);
+        printf("\n");
     }
 }
-
 
 void ft_mlx_pixel_put(t_window *vars, int x, int y, int color)
 {
@@ -104,7 +102,6 @@ void ft_mlx_pixel_put(t_window *vars, int x, int y, int color)
     if (x >= 0 && y >= 0 && x <= WINDOW_WIDTH && y <= WINDOW_HEIGHT)
         *(unsigned int *)dst = color;
 }
-
 
 void ft_draw_circle(int x, int y, int r, int line_width, t_window *window, int color)
 {
@@ -179,8 +176,8 @@ int ft_close_mouse(t_vars *vars)
     exit(0);
 }
 
-
-void init_vars(t_node ***nodes,t_vars *vars){
+void init_vars(t_node ***nodes, t_vars *vars)
+{
     vars->min_dist = 900000000;
     vars->min_y = 900000000;
     vars->min_x = 900000000;
@@ -236,47 +233,6 @@ int main(int ac, char **av)
 {
     t_vars vars;
     t_window window;
-    t_node **node = NULL;
-    initStructs(&node,LEM);
-    printNodes(node);
-
-    vars.mlx = mlx_init();
-    vars.win = mlx_new_window(vars.mlx, 1920, 1080, "Hello world!");
-    window.img = mlx_new_image(vars.mlx, 1920, 1080);
-    window.addr = mlx_get_data_addr(window.img, &window.bits_per_pixel, &window.line_length,
-                                    &window.endian);
-
-    init_vars(&node,&vars);
-    for (int i = 0; node[i]; i++)
-    {
-        ft_draw_circle(node[i]->x, node[i]->y, vars.min_dist * vars.off_set_dist * 0.9, vars.min_dist * vars.off_set_dist * 0.1, &window, 0x00FF0000);
-        for (int j = 0; node[i]->linked_nodes[j]; j++)
-        {
-            DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 10, 10, 0x00FF0000);
-            if (node[i]->weigth == 0 || node[i]->linked_nodes[j]->weigth == 0)
-                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0xFFFFFFFF);
-            else
-                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0x0000FF00);
-        }
-    }
-
-    for (int i = 0; node[i]; i++)
-    {
-        if (node[i]->weigth == 0)
-            ft_draw_circle_color(node[i]->x, node[i]->y, vars.min_dist * vars.off_set_dist * 0.9, vars.min_dist * vars.off_set_dist * 0.1, &window, 0xFFFFFFFF);
-        else
-            ft_draw_circle_color(node[i]->x, node[i]->y, vars.min_dist * vars.off_set_dist * 0.9, vars.min_dist * vars.off_set_dist * 0.1, &window, 0x0000FF00);
-    }
-    mlx_put_image_to_window(vars.mlx, vars.win, window.img, 0, 0xFFFFFFFF);
-
-    mlx_hook(vars.win, 2, 1L << 0, ft_move_keycode, &vars);
-    mlx_hook(vars.win, 17, 1L << 2, ft_close_mouse, &vars);
-    mlx_loop(vars.mlx);
-    for (int i = 0; node[i]; i++)
-    {
-        free(node[i]->id);
-        free(node[i]->linked_nodes);
-        free(node[i]);
-    }
-    free(node);
+    t_node **nodes = NULL;
+    initStructs(&nodes,VISU);
 }

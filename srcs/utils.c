@@ -1,5 +1,4 @@
-#include "../includes/utils.h"
-#include "../includes/lem-in.h"
+#include "../includes/includes.h"
 
 int ft_atoi(const char *nptr)
 {
@@ -84,4 +83,10 @@ int ft_strcmp(char *src, char *dst)
     if (ft_strlen(dst) != i || (src[i] != '\n' && src[i] != '\0'))
         return 0;
     return 1;
+}
+
+
+void outputBuffer(char * str){
+    for(int i = 0; str[i]; i++)
+        write(1,&str[i],sizeof(str[i]));
 }

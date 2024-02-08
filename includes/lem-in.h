@@ -3,33 +3,63 @@
 #ifndef LEM_IN_H
 #define LEM_IN_H
 
-
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <fcntl.h>
-#include <unistd.h>
-#include "mlx.h"
-#define BUFFER_SIZE 5
-
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
-
-#define ROOM 1
-#define LINK 2
-
-#define START 10
-#define END 11
-#define COMMENT 12
-
-#define GET_ID_LINK_END 20
-#define GET_ID_LINK_BEGIN 21
-#define GET_ID_ROOM 22
-
-#define ERROR_UNDEFINED 200
-#define ERROR_NODE_NOT_FOUND 201
-#define ERROR_NODE_WRONG_NAME 202
-#define ERROR_CANNOT_READ_FD 203
+#include "includes.h"
 
 
+typedef struct s_node
+{
+    int x;
+    int y;
+    char *id;
+    int weigth;
+    char type;
+    struct s_node **linked_nodes;
+} t_node;
+
+
+typedef struct s_window
+{
+    void *img;
+    char *addr;
+    int bits_per_pixel;
+    int line_length;
+    int endian;
+} t_window;
+
+
+typedef struct s_vars
+{
+    void *mlx;
+    void *win;
+    int min_dist;
+    int min_y;
+    int min_x;
+    int max_y;
+    int max_x;
+    int off_set_dist;
+    int off_set_x;
+    int off_set_y;
+} t_vars;
+
+typedef struct s_vec
+{
+    int x;
+    int y;
+} t_vec;
+
+
+t_node *create_new_node(int x, int y, char *id, char type);
+int get_linked_node_len(t_node **linked_nodes);
+void add_link(t_node *src_node, t_node *add_node);
+void link_node(t_node *first_node, t_node *second_node);
+t_node *find_node(t_node ***nodes, char *id);
+void create_node_map(char ***link, t_node ***nodes);
+void printNodes(t_node **node);
+void ft_mlx_pixel_put(t_window *vars, int x, int y, int color);
+void ft_draw_circle(int x, int y, int r, int line_width, t_window *window, int color);
+void ft_draw_circle_color(int x, int y, int r, int line_width, t_window *window, int color);
+void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int border, int color);
+int ft_close_key(int keycode, t_vars *vars);
+int ft_move_keycode(int keycode, t_vars *vars);
+int ft_close_mouse(t_vars *vars);
 #endif
