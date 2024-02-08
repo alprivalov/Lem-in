@@ -202,7 +202,7 @@ void init_vars(t_node ***nodes, t_display *vars)
     vars->min_x = 900000000;
     vars->max_y = -900000000;
     vars->max_x = -900000000;
-    vars->off_set_dist = 50;
+    vars->off_set_dist = 200;
     for (int i = 0; (*nodes)[i]; i++)
     {
         for (int j = 0; (*nodes)[j]; j++)
@@ -216,6 +216,8 @@ void init_vars(t_node ***nodes, t_display *vars)
             }
         }
     }
+    vars->min_dist = sqrt(vars->min_dist);
+    printf("%d\n", vars->min_dist);
     for (int i = 0; (*nodes)[i]; i++)
     {
         (*nodes)[i]->x = (*nodes)[i]->x / vars->min_dist * vars->off_set_dist;
@@ -304,7 +306,7 @@ void BFS(t_node **node, t_window window, t_display vars)
 
     for (int i = 0; node[i]; i++)
     {
-        ft_draw_circle(node[i]->x, node[i]->y, vars.min_dist * vars.off_set_dist * 0.9, vars.min_dist * vars.off_set_dist * 0.1, &window, 0x000000FF);
+        ft_draw_circle(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, 0x000000FF);
         for (int j = 0; node[i]->linked_nodes[j]; j++)
         {
             DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 10, 10, 0x000000FF, 0x000000FF);
@@ -318,9 +320,9 @@ void BFS(t_node **node, t_window window, t_display vars)
     for (int i = 0; node[i]; i++)
     {
         if (node[i]->weigth == 0)
-            ft_draw_circle_color(node[i]->x, node[i]->y, vars.min_dist * vars.off_set_dist * 0.9, vars.min_dist * vars.off_set_dist * 0.1, &window, 0xFFFFFFFF);
+            ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, 0xFFFFFFFF);
         else
-            ft_draw_circle_color(node[i]->x, node[i]->y, vars.min_dist * vars.off_set_dist * 0.9, vars.min_dist * vars.off_set_dist * 0.1, &window, node[i]->color);
+            ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, node[i]->color);
     }
     mlx_put_image_to_window(vars.mlx, vars.win, window.img, 0, 0xFFFFFFFF);
 }
