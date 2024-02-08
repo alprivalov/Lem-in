@@ -96,47 +96,50 @@ int getPosTill(char *buff, int *index, char c)
 
 char *getBufferFromFd(char *fileName)
 {
-    char tmp_buffer[BUFFER_SIZE + 1];
+    char * tmp_buffer;
     char *fd_buffer = malloc(0);
     int bytesRead;
     int fd = open(fileName, O_RDWR);
     if (fd == -1)
         exitError(ERROR_CANNOT_READ_FD);
-    tmp_buffer[BUFFER_SIZE + 1] = '\0';
+    tmp_buffer = malloc(sizeof(char ) * BUFFER_SIZE);
     bytesRead = read(fd, tmp_buffer, sizeof(tmp_buffer));
     while (bytesRead)
     {
         fd_buffer = ft_str_cat(tmp_buffer, fd_buffer);
+        tmp_buffer[BUFFER_SIZE] = '\0';
+        free(tmp_buffer);
+        tmp_buffer = malloc(sizeof(char ) * BUFFER_SIZE);
         bytesRead = read(fd, tmp_buffer, sizeof(tmp_buffer));
     }
     fd_buffer[ft_strlen(fd_buffer)] = '\0';
+    free(tmp_buffer);
     return fd_buffer;
 }
 
 char *getBufferFromFdSTDIN()
 {
-    char tmp_buffer[BUFFER_SIZE + 1];
+    char * tmp_buffer;
     char *fd_buffer = malloc(0);
     int bytesRead;
-    tmp_buffer[BUFFER_SIZE + 1] = '\0';
     bytesRead = read(STDIN_FILENO, tmp_buffer, sizeof(tmp_buffer));
     if (bytesRead < 0)
         exitError(ERROR_CANNOT_READ_FD);
+    tmp_buffer = malloc(sizeof(char ) * BUFFER_SIZE);
     while (bytesRead)
     {
         fd_buffer = ft_str_cat(tmp_buffer, fd_buffer);
+        tmp_buffer[BUFFER_SIZE] = '\0';
+        free(tmp_buffer);
+        tmp_buffer = malloc(sizeof(char ) * BUFFER_SIZE);
         bytesRead = read(STDIN_FILENO, tmp_buffer, sizeof(tmp_buffer));
-        tmp_buffer[BUFFER_SIZE + 1] = '\0';
     }
     fd_buffer[ft_strlen(fd_buffer)] = '\0';
+    free(tmp_buffer);
     return fd_buffer;
 }
 
-// void printf(){
-//
-// }
-
-void initStructs(t_node ***node, int fd_Type)
+void initStructs(t_node ***node, int fd_Type,t_vars *global)
 {
     int i = 0;
     char *fd_buffer = NULL;
@@ -150,11 +153,11 @@ void initStructs(t_node ***node, int fd_Type)
     }
     else
         fd_buffer = getBufferFromFdSTDIN();
-
     char commentType;
     int type;
     int numberOfNodes = 0;
     int lenBuffer = ft_strlen(fd_buffer);
+    (*global).nbAnt = getPosTill(fd_buffer,&i,'\n');
     if (!fd_buffer)
         exitError(0);
     while (i < lenBuffer && fd_buffer[i])

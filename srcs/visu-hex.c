@@ -156,27 +156,27 @@ void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int border, i
     }
 }
 
-int ft_close_key(int keycode, t_vars *vars)
+int ft_close_key(int keycode, t_display *vars)
 {
     mlx_destroy_window(vars->mlx, vars->win);
     exit(0);
 }
 
-int ft_move_keycode(int keycode, t_vars *vars)
+int ft_move_keycode(int keycode, t_display *vars)
 {
     if (keycode == 65307)
         ft_close_key(keycode, vars);
     return 0;
 }
 
-int ft_close_mouse(t_vars *vars)
+int ft_close_mouse(t_display *vars)
 {
 
     mlx_destroy_window(vars->mlx, vars->win);
     exit(0);
 }
 
-void init_vars(t_node ***nodes, t_vars *vars)
+void init_vars(t_node ***nodes, t_display *vars)
 {
     vars->min_dist = 900000000;
     vars->min_y = 900000000;
@@ -231,8 +231,9 @@ void init_vars(t_node ***nodes, t_vars *vars)
 
 int main(int ac, char **av)
 {
-    t_vars vars;
+    t_display vars;
+    t_vars global;
     t_window window;
     t_node **nodes = NULL;
-    initStructs(&nodes,VISU);
+    initStructs(&nodes,VISU,&global);
 }

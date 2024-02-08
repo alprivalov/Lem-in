@@ -9,6 +9,6 @@ int getLenTill(char *buff, char c, int *index);
 char *getIdTill(char *buff, int *index, char c);
 int getPosTill(char *buff, int *index, char c);
 char *getBufferFromFd(char *fileName);
-void initStructs(t_node ***node,int fd_Type);
+void initStructs(t_node ***node,int fd_Type,t_vars *global);
 void exitError(int Error);
 #endif

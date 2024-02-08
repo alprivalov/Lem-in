@@ -27,7 +27,7 @@ typedef struct s_window
 } t_window;
 
 
-typedef struct s_vars
+typedef struct s_display
 {
     void *mlx;
     void *win;
@@ -39,7 +39,13 @@ typedef struct s_vars
     int off_set_dist;
     int off_set_x;
     int off_set_y;
+} t_display;
+
+typedef struct s_vars
+{
+    int nbAnt;
 } t_vars;
+
 
 typedef struct s_vec
 {
@@ -59,7 +65,7 @@ void ft_mlx_pixel_put(t_window *vars, int x, int y, int color);
 void ft_draw_circle(int x, int y, int r, int line_width, t_window *window, int color);
 void ft_draw_circle_color(int x, int y, int r, int line_width, t_window *window, int color);
 void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int border, int color);
-int ft_close_key(int keycode, t_vars *vars);
-int ft_move_keycode(int keycode, t_vars *vars);
-int ft_close_mouse(t_vars *vars);
+int ft_close_key(int keycode, t_display *vars);
+int ft_move_keycode(int keycode, t_display *vars);
+int ft_close_mouse(t_display *vars);
 #endif
