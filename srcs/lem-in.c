@@ -81,6 +81,16 @@ void create_node_map(char ***link, t_node ***nodes)
     }
 }
 
+int ft_blend(int color1, int color2, float r1, float r2)
+{
+    unsigned char RGB[3];
+
+    RGB[0] = (unsigned char)(((color1 >> 16) & 0xFF) * r1 + ((color2 >> 16) & 0xFF) * r2);
+    RGB[1] = (unsigned char)(((color1 >> 8) & 0xFF) * r1 + ((color2 >> 8) & 0xFF) * r2);
+    RGB[2] = (unsigned char)(((color1) & 0xFF) * r1 + ((color2) & 0xFF) * r2);
+
+    return ((RGB[0] << 16) + (RGB[1] << 8) + RGB[2]);
+}
 
 void printNodes(t_node **node)
 {
@@ -91,10 +101,11 @@ void printNodes(t_node **node)
         {
             printf(" %s", node[i]->linked_nodes[j]->id);
         }
-        printf("\t\t type: %c\n",node[i]->type);
+        printf("\t type: %c", node[i]->type);
+        printf("\t weight: %d", node[i]->weigth);
+        printf("\t color: %d\n", node[i]->color);
     }
 }
-
 
 void ft_mlx_pixel_put(t_window *vars, int x, int y, int color)
 {
@@ -104,7 +115,6 @@ void ft_mlx_pixel_put(t_window *vars, int x, int y, int color)
     if (x >= 0 && y >= 0 && x <= WINDOW_WIDTH && y <= WINDOW_HEIGHT)
         *(unsigned int *)dst = color;
 }
-
 
 void ft_draw_circle(int x, int y, int r, int line_width, t_window *window, int color)
 {
@@ -116,7 +126,7 @@ void ft_draw_circle(int x, int y, int r, int line_width, t_window *window, int c
     for (int i = round_area_start_x; i < round_area_end_x; i++)
         for (int j = round_area_start_y; j < round_area_end_y; j++)
             if (!(i < 0 || i > 1920 || j < 0 || j > 1080) && ((i - x) * (i - x)) + ((j - y) * (j - y)) < r * r)
-                ft_mlx_pixel_put(window, i, j, 0x00FF0000);
+                ft_mlx_pixel_put(window, i, j, 0x00000000FF);
     if (line_width <= r)
         for (int i = round_area_start_x; i < round_area_end_x; i++)
             for (int j = round_area_start_y; j < round_area_end_y; j++)
@@ -137,7 +147,7 @@ void ft_draw_circle_color(int x, int y, int r, int line_width, t_window *window,
                 ft_mlx_pixel_put(window, i, j, color);
 }
 
-void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int border, int color)
+void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int border, int color_start, int color_end)
 {
     // calculate dx & dy
     int dx = cX - aX;
@@ -153,7 +163,13 @@ void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int border, i
     float Y = aY;
     for (int i = 0; i <= steps; i++)
     {
-        ft_draw_circle(X, Y, len, border, &window, color);
+        // printf("%f",)
+
+        double ratio_start = (double)(i) / steps;
+        double ratio_end = 1.0 - (double)(i) / steps;
+        // printf("%f , %f\n", ratio_start, ratio_end);
+
+        ft_draw_circle(X, Y, len, border, &window, ft_blend(color_start, color_end, ratio_start, ratio_end));
         X += Xinc; // increment in x at each step
         Y += Yinc; // increment in y at each step
     }
@@ -179,8 +195,8 @@ int ft_close_mouse(t_display *vars)
     exit(0);
 }
 
-
-void init_vars(t_node ***nodes,t_display *vars){
+void init_vars(t_node ***nodes, t_display *vars)
+{
     vars->min_dist = 900000000;
     vars->min_y = 900000000;
     vars->min_x = 900000000;
@@ -232,14 +248,89 @@ void init_vars(t_node ***nodes,t_display *vars){
     }
 }
 
+void initNodeColor(t_node **node)
+{
+    int minWeight = 999999999;
+    int maxWeight = 0;
+
+    for (int i = 0; node[i]; i++)
+    {
+        if (node[i]->weigth > maxWeight)
+            maxWeight = node[i]->weigth;
+        if (node[i]->weigth < minWeight)
+            minWeight = node[i]->weigth;
+    }
+    for (int i = 0; node[i]; i++)
+    {
+        float ratio = (maxWeight != minWeight) ? (float)(node[i]->weigth - minWeight) / (float)(maxWeight - minWeight) : 1.0;
+
+        float ratioInv = 1.0 - ratio;
+        node[i]->color = ft_blend(16711680, 0x0000FF00, ratio, ratioInv);
+    }
+}
+
+void BFS(t_node **node, t_window window, t_display vars)
+{
+    int weigth = 1;
+    int state = 1;
+    for (int i = 0; node[i]; i++)
+    {
+        if (node[i]->type == 'S')
+        {
+            node[i]->weigth = 1;
+        }
+    }
+    while (state)
+    {
+        usleep(1000000);
+        state = 0;
+        for (int i = 0; node[i]; i++)
+        {
+            if (node[i]->weigth == weigth)
+            {
+                for (int j = 0; node[i]->linked_nodes[j]; j++)
+                {
+                    if (node[i]->linked_nodes[j]->weigth == 0)
+                    {
+                        node[i]->linked_nodes[j]->weigth = weigth + 1;
+                        state = 1;
+                    }
+                }
+            }
+        }
+        weigth++;
+    }
+    initNodeColor(node);
+
+    for (int i = 0; node[i]; i++)
+    {
+        ft_draw_circle(node[i]->x, node[i]->y, vars.min_dist * vars.off_set_dist * 0.9, vars.min_dist * vars.off_set_dist * 0.1, &window, 0x000000FF);
+        for (int j = 0; node[i]->linked_nodes[j]; j++)
+        {
+            DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 10, 10, 0x000000FF, 0x000000FF);
+            if (node[i]->weigth == 0 || node[i]->linked_nodes[j]->weigth == 0)
+                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0xFFFFFFFF, 0xFFFFFFFF);
+            else
+                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0,  node[i]->linked_nodes[j]->color, node[i]->color);
+        }
+    }
+
+    for (int i = 0; node[i]; i++)
+    {
+        if (node[i]->weigth == 0)
+            ft_draw_circle_color(node[i]->x, node[i]->y, vars.min_dist * vars.off_set_dist * 0.9, vars.min_dist * vars.off_set_dist * 0.1, &window, 0xFFFFFFFF);
+        else
+            ft_draw_circle_color(node[i]->x, node[i]->y, vars.min_dist * vars.off_set_dist * 0.9, vars.min_dist * vars.off_set_dist * 0.1, &window, node[i]->color);
+    }
+    mlx_put_image_to_window(vars.mlx, vars.win, window.img, 0, 0xFFFFFFFF);
+}
 int main(int ac, char **av)
 {
     t_display display;
     t_vars global;
     t_window window;
     t_node **node = NULL;
-    initStructs(&node,LEM,&global);
-    printNodes(node);
+    initStructs(&node, LEM, &global);
 
     display.mlx = mlx_init();
     display.win = mlx_new_window(display.mlx, 1920, 1080, "Hello world!");
@@ -247,26 +338,29 @@ int main(int ac, char **av)
     window.addr = mlx_get_data_addr(window.img, &window.bits_per_pixel, &window.line_length,
                                     &window.endian);
 
-    init_vars(&node,&display);
-    for (int i = 0; node[i]; i++)
-    {
-        ft_draw_circle(node[i]->x, node[i]->y, display.min_dist * display.off_set_dist * 0.9, display.min_dist * display.off_set_dist * 0.1, &window, 0x00FF0000);
-        for (int j = 0; node[i]->linked_nodes[j]; j++)
-        {
-            DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 10, 10, 0x00FF0000);
-            if (node[i]->weigth == 0 || node[i]->linked_nodes[j]->weigth == 0)
-                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0xFFFFFFFF);
-            else
-                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0x0000FF00);
-        }
-    }
-    for (int i = 0; node[i]; i++)
-    {
-        if (node[i]->weigth == 0)
-            ft_draw_circle_color(node[i]->x, node[i]->y, display.min_dist * display.off_set_dist * 0.9, display.min_dist * display.off_set_dist * 0.1, &window, 0xFFFFFFFF);
-        else
-            ft_draw_circle_color(node[i]->x, node[i]->y, display.min_dist * display.off_set_dist * 0.9, display.min_dist * display.off_set_dist * 0.1, &window, 0x0000FF00);
-    }
+    init_vars(&node, &display);
+    BFS(node, window, display);
+
+    // for (int i = 0; node[i]; i++)
+    // {
+    //     ft_draw_circle(node[i]->x, node[i]->y, display.min_dist * display.off_set_dist * 0.9, display.min_dist * display.off_set_dist * 0.1, &window, node[i]->color);
+    //     for (int j = 0; node[i]->linked_nodes[j]; j++)
+    //     {
+    //         DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 10, 10, node[i]->color);
+    //         if (node[i]->weigth == 0 || node[i]->linked_nodes[j]->weigth == 0)
+    //             DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0xFFFFFFFF);
+    //         else
+    //             DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0x0000FF00);
+    //     }
+    // }
+    // for (int i = 0; node[i]; i++)
+    // {
+    //     if (node[i]->weigth == 0)
+    //         ft_draw_circle_color(node[i]->x, node[i]->y, display.min_dist * display.off_set_dist * 0.9, display.min_dist * display.off_set_dist * 0.1, &window, 0xFFFFFFFF);
+    //     else
+    //         ft_draw_circle_color(node[i]->x, node[i]->y, display.min_dist * display.off_set_dist * 0.9, display.min_dist * display.off_set_dist * 0.1, &window, node[i]->color);
+    // }
+    printNodes(node);
 
     mlx_put_image_to_window(display.mlx, display.win, window.img, 0, 0xFFFFFFFF);
 

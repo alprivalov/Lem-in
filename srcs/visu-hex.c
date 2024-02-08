@@ -134,7 +134,7 @@ void ft_draw_circle_color(int x, int y, int r, int line_width, t_window *window,
                 ft_mlx_pixel_put(window, i, j, color);
 }
 
-void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int border, int color)
+void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int border, int color_start, int color_end)
 {
     // calculate dx & dy
     int dx = cX - aX;
@@ -150,7 +150,7 @@ void DDA(t_window window, int aX, int aY, int cX, int cY, int len, int border, i
     float Y = aY;
     for (int i = 0; i <= steps; i++)
     {
-        ft_draw_circle(X, Y, len, border, &window, color);
+        // ft_draw_circle(X, Y, len, border, &window, color);
         X += Xinc; // increment in x at each step
         Y += Yinc; // increment in y at each step
     }
