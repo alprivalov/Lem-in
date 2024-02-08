@@ -301,30 +301,30 @@ void BFS(t_node **node, t_window window, t_display vars)
             }
         }
         weigth++;
-    }
-    initNodeColor(node);
+        initNodeColor(node);
 
-    for (int i = 0; node[i]; i++)
-    {
-        ft_draw_circle(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, 0x000000FF);
-        for (int j = 0; node[i]->linked_nodes[j]; j++)
+        for (int i = 0; node[i]; i++)
         {
-            DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 10, 10, 0x000000FF, 0x000000FF);
-            if (node[i]->weigth == 0 || node[i]->linked_nodes[j]->weigth == 0)
-                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0xFFFFFFFF, 0xFFFFFFFF);
-            else
-                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0,  node[i]->linked_nodes[j]->color, node[i]->color);
+            ft_draw_circle(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, 0x000000FF);
+            for (int j = 0; node[i]->linked_nodes[j]; j++)
+            {
+                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 10, 10, 0x000000FF, 0x000000FF);
+                if (node[i]->weigth == 0 || node[i]->linked_nodes[j]->weigth == 0)
+                    DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0xFFFFFFFF, 0xFFFFFFFF);
+                else
+                    DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0,  node[i]->linked_nodes[j]->color, node[i]->color);
+            }
         }
+    
+        for (int i = 0; node[i]; i++)
+        {
+            if (node[i]->weigth == 0)
+                ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, 0xFFFFFFFF);
+            else
+                ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, node[i]->color);
+        }
+        mlx_put_image_to_window(vars.mlx, vars.win, window.img, 0, 0xFFFFFFFF);
     }
-
-    for (int i = 0; node[i]; i++)
-    {
-        if (node[i]->weigth == 0)
-            ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, 0xFFFFFFFF);
-        else
-            ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, node[i]->color);
-    }
-    mlx_put_image_to_window(vars.mlx, vars.win, window.img, 0, 0xFFFFFFFF);
 }
 int main(int ac, char **av)
 {
