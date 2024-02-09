@@ -202,7 +202,7 @@ void init_vars(t_node ***nodes, t_display *vars)
     vars->min_x = 900000000;
     vars->max_y = -900000000;
     vars->max_x = -900000000;
-    vars->off_set_dist = 200;
+    vars->off_set_dist = 50;
     for (int i = 0; (*nodes)[i]; i++)
     {
         for (int j = 0; (*nodes)[j]; j++)
@@ -247,6 +247,8 @@ void init_vars(t_node ***nodes, t_display *vars)
         (*nodes)[i]->x += (1920 - vars->max_x) / 2;
         (*nodes)[i]->y += (1080 - vars->max_y) / 2;
         (*nodes)[i]->weigth = 0;
+        (*nodes)[i]->defWeight = 0;
+        (*nodes)[i]->ant = false;
     }
 }
 
@@ -257,14 +259,14 @@ void initNodeColor(t_node **node)
 
     for (int i = 0; node[i]; i++)
     {
-        if (node[i]->weigth > maxWeight)
-            maxWeight = node[i]->weigth;
-        if (node[i]->weigth < minWeight)
-            minWeight = node[i]->weigth;
+        if (node[i]->defWeight > maxWeight)
+            maxWeight = node[i]->defWeight;
+        if (node[i]->defWeight < minWeight)
+            minWeight = node[i]->defWeight;
     }
     for (int i = 0; node[i]; i++)
     {
-        float ratio = (maxWeight != minWeight) ? (float)(node[i]->weigth - minWeight) / (float)(maxWeight - minWeight) : 1.0;
+        float ratio = (maxWeight != minWeight) ? (float)(node[i]->defWeight - minWeight) / (float)(maxWeight - minWeight) : 1.0;
 
         float ratioInv = 1.0 - ratio;
         node[i]->color = ft_blend(16711680, 0x0000FF00, ratio, ratioInv);
@@ -275,19 +277,14 @@ void BFS(t_node **node, t_window window, t_display vars)
 {
     int weigth = 1;
     int state = 1;
-    for (int i = 0; node[i]; i++)
-    {
-        if (node[i]->type == 'S')
-        {
-            node[i]->weigth = 1;
-        }
-    }
+
     while (state)
     {
-        usleep(1000000);
+        usleep(100000);
         state = 0;
         for (int i = 0; node[i]; i++)
         {
+
             if (node[i]->weigth == weigth)
             {
                 for (int j = 0; node[i]->linked_nodes[j]; j++)
@@ -301,37 +298,58 @@ void BFS(t_node **node, t_window window, t_display vars)
             }
         }
         weigth++;
-        initNodeColor(node);
-
-        for (int i = 0; node[i]; i++)
+    }
+    for (int i = 0; node[i]; i++)
+    {
+        if (node[i]->weigth == 1)
         {
-            ft_draw_circle(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, 0x000000FF);
-            for (int j = 0; node[i]->linked_nodes[j]; j++)
+            for (int j = 0; node[j]; j++)
             {
-                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 10, 10, 0x000000FF, 0x000000FF);
-                if (node[i]->weigth == 0 || node[i]->linked_nodes[j]->weigth == 0)
-                    DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0xFFFFFFFF, 0xFFFFFFFF);
-                else
-                    DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0,  node[i]->linked_nodes[j]->color, node[i]->color);
+                if (node[j]->type == 'S' || node[j]->type == 'E')
+                {
+                    node[i]->defWeight += node[j]->weigth;
+                }
             }
         }
-    
-        for (int i = 0; node[i]; i++)
-        {
-            if (node[i]->weigth == 0)
-                ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, 0xFFFFFFFF);
-            else
-                ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist/2 * 0.9, vars.off_set_dist/2 * 0.1, &window, node[i]->color);
-        }
-        mlx_put_image_to_window(vars.mlx, vars.win, window.img, 0, 0xFFFFFFFF);
     }
+
+    initNodeColor(node);
+
+    for (int i = 0; node[i]; i++)
+    {
+        ft_draw_circle(node[i]->x, node[i]->y, vars.off_set_dist / 2 * 0.9, vars.off_set_dist / 2 * 0.1, &window, 0x000000FF);
+        for (int j = 0; node[i]->linked_nodes[j]; j++)
+        {
+            DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 10, 10, 0x000000FF, 0x000000FF);
+            if (node[i]->weigth == 0 || node[i]->linked_nodes[j]->weigth == 0)
+                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0xFFFFFFFF, 0xFFFFFFFF);
+            else
+                DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, node[i]->linked_nodes[j]->color, node[i]->color);
+        }
+    }
+
+    for (int i = 0; node[i]; i++)
+    {
+        if (node[i]->weigth == 0)
+            ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist / 2 * 0.9, vars.off_set_dist / 2 * 0.1, &window, 0xFFFFFFFF);
+        else
+            ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist / 2 * 0.9, vars.off_set_dist / 2 * 0.1, &window, node[i]->color);
+    }
+
+    mlx_put_image_to_window(vars.mlx, vars.win, window.img, 0, 0xFFFFFFFF);
+
+    for (int i = 0; node[i]; i++)
+        mlx_string_put(vars.mlx, vars.win, node[i]->x, node[i]->y, 0, ft_itoa(node[i]->defWeight));
 }
+
 int main(int ac, char **av)
 {
     t_display display;
     t_vars global;
     t_window window;
     t_node **node = NULL;
+    t_ant *ants;
+    
     initStructs(&node, LEM, &global);
 
     display.mlx = mlx_init();
@@ -341,7 +359,16 @@ int main(int ac, char **av)
                                     &window.endian);
 
     init_vars(&node, &display);
-    BFS(node, window, display);
+
+    for (int i = 0; node[i]; i++)
+    {
+        for (int j = 0; node[j]; j++)
+        {
+            node[j]->weigth = 0;
+        }
+        node[i]->weigth = 1;
+        BFS(node, window, display);
+    }
 
     // for (int i = 0; node[i]; i++)
     // {

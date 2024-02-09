@@ -9,5 +9,9 @@ char *ft_str_cat(char *src, char *dst);
 int ft_strcomp(char *src, char *dst);
 int ft_atoi(const char *nptr);
 void outputBuffer(char * str);
+char	*ft_itoa(int n);
+void	ft_bzero(void *s, size_t n);
+void	*ft_calloc(size_t nmemb, size_t size);
+size_t	ft_strlcpy(char *dst, const char *src, size_t size);
 
 #endif

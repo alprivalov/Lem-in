@@ -146,7 +146,7 @@ void initStructs(t_node ***node, int fd_Type,t_vars *global)
     t_node **links = NULL;
     if (fd_Type == LEM)
     {
-        fd_buffer = getBufferFromFd("./maps/test.map");
+        fd_buffer = getBufferFromFd("../maps/subject.map");
         outputBuffer(fd_buffer);
         // \/ a ne pas oublier d'enlever \/ 
         write(1,"\n",1);

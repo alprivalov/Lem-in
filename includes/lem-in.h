@@ -14,6 +14,8 @@ typedef struct s_node
     int weigth;
     int color;
     char type;
+    bool ant;
+    int defWeight;
     struct s_node **linked_nodes;
 } t_node;
 
@@ -53,6 +55,12 @@ typedef struct s_vec
     int x;
     int y;
 } t_vec;
+
+typedef struct s_ant
+{
+    t_node **node;
+} t_ant;
+
 
 
 t_node *create_new_node(int x, int y, char *id, char type);
