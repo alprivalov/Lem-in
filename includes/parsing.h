@@ -10,5 +10,6 @@ char *getIdTill(char *buff, int *index, char c);
 int getPosTill(char *buff, int *index, char c);
 char *getBufferFromFd(char *fileName);
 void initStructs(t_node ***node,int fd_Type,t_vars *global);
+void exitGood(t_ant **ant,t_window window ,t_display display ,t_node **node);
 void exitError(int Error);
 #endif

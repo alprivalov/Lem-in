@@ -1,5 +1,27 @@
 #include "../includes/includes.h"
 
+void exitGood(t_ant **ant,t_window window ,t_display display ,t_node **node)
+{
+    //If there isn’t enough data to process normally you must display ERROR
+
+    for (size_t i = 0; ant[i]; i++)
+    {
+        free(ant[i]->node_found);
+        free(ant[i]);
+    }
+    free(ant);
+    for (int i = 0; node[i]; i++)
+    {
+        free(node[i]->id);
+        free(node[i]->linked_nodes);
+        free(node[i]);
+        free(node[i]->ants);
+    }
+    mlx_destroy_image(display.mlx, window.img);
+    mlx_destroy_display(display.mlx);
+    free(node);
+    exit(0);
+}
 void exitError(int Error)
 {
     //If there isn’t enough data to process normally you must display ERROR
@@ -146,7 +168,7 @@ void initStructs(t_node ***node, int fd_Type,t_vars *global)
     t_node **links = NULL;
     if (fd_Type == LEM)
     {
-        fd_buffer = getBufferFromFd("../maps/subject.map");
+        fd_buffer = getBufferFromFd("../maps/test.map");
         outputBuffer(fd_buffer);
         // \/ a ne pas oublier d'enlever \/ 
         write(1,"\n",1);
@@ -210,5 +232,6 @@ void initStructs(t_node ***node, int fd_Type,t_vars *global)
 
     }
     if(fd_buffer)
-    free(fd_buffer);
+        free(fd_buffer);
+    global->nbNode = numberOfNodes;
 }

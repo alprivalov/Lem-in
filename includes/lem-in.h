@@ -6,6 +6,7 @@
 #include "includes.h"
 
 
+typedef struct s_ant t_ant;
 typedef struct s_node
 {
     int x;
@@ -14,10 +15,20 @@ typedef struct s_node
     int weigth;
     int color;
     char type;
-    bool ant;
     int defWeight;
     struct s_node **linked_nodes;
+    t_ant ** ants;
 } t_node;
+
+
+
+typedef struct s_ant
+{
+    t_node ** node_found;
+    int id;
+    t_node * location;
+    int nbNodeFound;
+} t_ant;
 
 
 typedef struct s_window
@@ -47,6 +58,7 @@ typedef struct s_display
 typedef struct s_vars
 {
     int nbAnt;
+    int nbNode;
 } t_vars;
 
 
@@ -55,13 +67,6 @@ typedef struct s_vec
     int x;
     int y;
 } t_vec;
-
-typedef struct s_ant
-{
-    t_node **node;
-} t_ant;
-
-
 
 t_node *create_new_node(int x, int y, char *id, char type);
 int get_linked_node_len(t_node **linked_nodes);
