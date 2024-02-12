@@ -150,12 +150,6 @@ void	ft_bzero(void *s, size_t n)
 }
 
 
-void outputBuffer(char * str){
-    for(int i = 0; str[i]; i++)
-        write(1,&str[i],sizeof(str[i]));
-}
-
-
 static char	*ft_populate(char *tab, int n)
 {
 	int	i;

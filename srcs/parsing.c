@@ -161,6 +161,11 @@ char *getBufferFromFdSTDIN()
     return fd_buffer;
 }
 
+void outputBuffer(char * str){
+    for(int i = 0; str[i]; i++)
+        write(1,&str[i],sizeof(str[i]));
+}
+
 void initStructs(t_node ***node, int fd_Type,t_vars *global)
 {
     int i = 0;
@@ -168,7 +173,7 @@ void initStructs(t_node ***node, int fd_Type,t_vars *global)
     t_node **links = NULL;
     if (fd_Type == LEM)
     {
-        fd_buffer = getBufferFromFd("../maps/test.map");
+        fd_buffer = getBufferFromFd("./maps/test.map");
         outputBuffer(fd_buffer);
         // \/ a ne pas oublier d'enlever \/ 
         write(1,"\n",1);
