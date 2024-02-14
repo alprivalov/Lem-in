@@ -1,8 +1,8 @@
 #include "../includes/includes.h"
 
-void exitGood(t_ant **ant,t_window window ,t_display display ,t_node **node)
+void exitGood(t_ant **ant, t_window window, t_display display, t_node **node)
 {
-    //If there isn’t enough data to process normally you must display ERROR
+    // If there isn’t enough data to process normally you must display ERROR
 
     for (size_t i = 0; ant[i]; i++)
     {
@@ -24,7 +24,7 @@ void exitGood(t_ant **ant,t_window window ,t_display display ,t_node **node)
 }
 void exitError(int Error)
 {
-    //If there isn’t enough data to process normally you must display ERROR
+    // If there isn’t enough data to process normally you must display ERROR
     printf("Error : %d\n", Error);
     exit(Error);
 }
@@ -92,7 +92,10 @@ char *getIdTill(char *buff, int *index, char c)
         i++;
     }
     if (output && (output[0] == 'L' || output[0] == '#'))
+    {
+        free(output);
         exitError(ERROR_NODE_WRONG_NAME);
+    }
     output[i] = '\0';
     return output;
 }
@@ -111,6 +114,8 @@ int getPosTill(char *buff, int *index, char c)
     tmp[i] = '\0';
 
     int output = ft_atoi(tmp);
+    if(output == -1)
+        exitError(ERROR_WRONG_INPUT);
     if (tmp)
         free(tmp);
     return output;
@@ -118,20 +123,20 @@ int getPosTill(char *buff, int *index, char c)
 
 char *getBufferFromFd(char *fileName)
 {
-    char * tmp_buffer;
+    char *tmp_buffer;
     char *fd_buffer = malloc(0);
     int bytesRead;
     int fd = open(fileName, O_RDWR);
     if (fd == -1)
         exitError(ERROR_CANNOT_READ_FD);
-    tmp_buffer = malloc(sizeof(char ) * BUFFER_SIZE);
+    tmp_buffer = malloc(sizeof(char) * BUFFER_SIZE);
     bytesRead = read(fd, tmp_buffer, sizeof(tmp_buffer));
     while (bytesRead)
     {
         fd_buffer = ft_str_cat(tmp_buffer, fd_buffer);
         tmp_buffer[BUFFER_SIZE] = '\0';
         free(tmp_buffer);
-        tmp_buffer = malloc(sizeof(char ) * BUFFER_SIZE);
+        tmp_buffer = malloc(sizeof(char) * BUFFER_SIZE);
         bytesRead = read(fd, tmp_buffer, sizeof(tmp_buffer));
     }
     fd_buffer[ft_strlen(fd_buffer)] = '\0';
@@ -141,19 +146,19 @@ char *getBufferFromFd(char *fileName)
 
 char *getBufferFromFdSTDIN()
 {
-    char * tmp_buffer;
+    char *tmp_buffer;
     char *fd_buffer = malloc(0);
     int bytesRead;
     bytesRead = read(STDIN_FILENO, tmp_buffer, sizeof(tmp_buffer));
     if (bytesRead < 0)
         exitError(ERROR_CANNOT_READ_FD);
-    tmp_buffer = malloc(sizeof(char ) * BUFFER_SIZE);
+    tmp_buffer = malloc(sizeof(char) * BUFFER_SIZE);
     while (bytesRead)
     {
         fd_buffer = ft_str_cat(tmp_buffer, fd_buffer);
         tmp_buffer[BUFFER_SIZE] = '\0';
         free(tmp_buffer);
-        tmp_buffer = malloc(sizeof(char ) * BUFFER_SIZE);
+        tmp_buffer = malloc(sizeof(char) * BUFFER_SIZE);
         bytesRead = read(STDIN_FILENO, tmp_buffer, sizeof(tmp_buffer));
     }
     fd_buffer[ft_strlen(fd_buffer)] = '\0';
@@ -161,22 +166,23 @@ char *getBufferFromFdSTDIN()
     return fd_buffer;
 }
 
-void outputBuffer(char * str){
-    for(int i = 0; str[i]; i++)
-        write(1,&str[i],sizeof(str[i]));
+void outputBuffer(char *str)
+{
+    for (int i = 0; str[i]; i++)
+        write(1, &str[i], sizeof(str[i]));
 }
 
-void initStructs(t_node ***node, int fd_Type,t_vars *global)
+void initStructs(t_node ***node, int fd_Type, t_vars *global)
 {
     int i = 0;
     char *fd_buffer = NULL;
     t_node **links = NULL;
     if (fd_Type == LEM)
     {
-        fd_buffer = getBufferFromFd("./maps/test.map");
+        fd_buffer = getBufferFromFd("../maps/test.map");
         outputBuffer(fd_buffer);
-        // \/ a ne pas oublier d'enlever \/ 
-        write(1,"\n",1);
+        // \/ a ne pas oublier d'enlever \/
+        write(1, "\n", 1);
     }
     else
         fd_buffer = getBufferFromFdSTDIN();
@@ -184,7 +190,7 @@ void initStructs(t_node ***node, int fd_Type,t_vars *global)
     int type;
     int numberOfNodes = 0;
     int lenBuffer = ft_strlen(fd_buffer);
-    (*global).nbAnt = getPosTill(fd_buffer,&i,'\n');
+    (*global).nbAnt = getPosTill(fd_buffer, &i, '\n');
     if (!fd_buffer)
         exitError(0);
     while (i < lenBuffer && fd_buffer[i])
@@ -213,7 +219,11 @@ void initStructs(t_node ***node, int fd_Type,t_vars *global)
             char *id = getIdTill(fd_buffer + i, &i, ' ');
             int x = getPosTill(fd_buffer + i, &i, ' ');
             int y = getPosTill(fd_buffer + i, &i, '\n');
-            // printf("room : %s %d %d \ttype: %c\n", id, x, y, commentType);
+            if (!id || x == -1 | y == -1)
+            {
+                // faut free
+                exitError(ERROR_WRONG_INPUT);
+            }
             t_node *createdNode = create_new_node(x, y, id, commentType);
             reAllocStruct(node, numberOfNodes, createdNode);
             numberOfNodes++;
@@ -224,7 +234,6 @@ void initStructs(t_node ***node, int fd_Type,t_vars *global)
             char *id_end = getIdTill(fd_buffer + i, &i, '\n');
             t_node *begin_node = find_node(node, id_begin);
             t_node *end_node = find_node(node, id_end);
-            // printf("Link : %s-%s \ttype: %c\n", id_begin, id_end, commentType);
             free(id_begin);
             free(id_end);
             if (begin_node == NULL || end_node == NULL)
@@ -234,9 +243,8 @@ void initStructs(t_node ***node, int fd_Type,t_vars *global)
         else
             i++;
         commentType = 'C';
-
     }
-    if(fd_buffer)
+    if (fd_buffer)
         free(fd_buffer);
     global->nbNode = numberOfNodes;
 }

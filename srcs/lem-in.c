@@ -190,7 +190,7 @@ void DDA_pos(int aX, int aY, int cX, int cY, float *X, float *Y, float r)
     // Put pixel for each step
     *X = aX;
     *Y = aY;
-    for (int i = 0; i <= steps*r; i++)
+    for (int i = 0; i <= steps * r; i++)
     {
         // printf("%f",)
 
@@ -327,14 +327,13 @@ void display_mlx(t_node **node, t_display vars, t_window window)
         mlx_string_put(vars.mlx, vars.win, node[i]->x, node[i]->y, 0, ft_itoa(node[i]->defWeight));
 }
 
-
-void move_ant_display(t_node *** node_saved_path ,t_node **node, t_display vars, t_window window)
+void move_ant_display(t_node ***node_saved_path, t_node **node, t_display vars, t_window window)
 {
     float x;
     float y;
-    for (int t = 0; t < 100 ; t++)
+    for (int t = 0; t < 100; t++)
     {
-
+        // draw background blue path / node
         for (int i = 0; node[i]; i++)
         {
             ft_draw_circle(node[i]->x, node[i]->y, vars.off_set_dist / 2 * 0.9, vars.off_set_dist / 2 * 0.1, &window, 0x000000FF);
@@ -342,20 +341,25 @@ void move_ant_display(t_node *** node_saved_path ,t_node **node, t_display vars,
             {
                 DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 10, 10, 0x000000FF, 0x000000FF);
                 DDA(window, node[i]->x, node[i]->y, node[i]->linked_nodes[j]->x, node[i]->linked_nodes[j]->y, 7, 0, 0xFFFFFFFF, 0xFFFFFFFF);
-                for (int k = 0; node_saved_path[k] ; k++)
+            }
+        }
+        // draw ants movement + white circle node
+        for (int i = 0; node[i]; i++)
+        {
+            ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist / 2 * 0.9, vars.off_set_dist / 2 * 0.1, &window, 0xFFFFFFFF);
+            for (int j = 0; node[i]->linked_nodes[j]; j++)
+            {
+                for (int k = 0; node_saved_path[k]; k++)
                 {
                     if ((node_saved_path[k][0] == node[i] && node_saved_path[k][1] == node[i]->linked_nodes[j]) || (node_saved_path[k][0] == node[i]->linked_nodes[j] && node_saved_path[k][1] == node[i]))
                     {
-                        DDA_pos(node_saved_path[k][0]->x, node_saved_path[k][0]->y, node_saved_path[k][1]->x, node_saved_path[k][1]->y, &x, &y, (float)(t)/100);
+                        DDA_pos(node_saved_path[k][0]->x, node_saved_path[k][0]->y, node_saved_path[k][1]->x, node_saved_path[k][1]->y, &x, &y, (float)(t) / 100);
                         ft_draw_circle_color(x, y, 5, 0, &window, 0x00000000);
                     }
                 }
             }
         }
-        for (int i = 0; node[i]; i++)
-        {
-            ft_draw_circle_color(node[i]->x, node[i]->y, vars.off_set_dist / 2 * 0.9, vars.off_set_dist / 2 * 0.1, &window, 0xFFFFFFFF);
-        }
+
         mlx_put_image_to_window(vars.mlx, vars.win, window.img, 0, 0xFFFFFFFF);
         usleep(10000);
     }
@@ -447,7 +451,7 @@ bool is_ant_finish(t_ant *ants, t_node *node_end)
     return false;
 }
 
-t_node ** moveAnt(t_node *node, t_ant *ant)
+t_node **moveAnt(t_node *node, t_ant *ant)
 {
     char *tmp = ant->location->id;
     t_node **save_path = NULL;
@@ -488,12 +492,77 @@ t_node ** moveAnt(t_node *node, t_ant *ant)
     printf("ant : %d from :%s to :%s\n", ant->id, tmp, ant->location->id);
     return (save_path);
 }
+
+// void setDijkstraAntPos(t_ant **ant, t_node **node)
+// {
+//     for (int i = 0; node[i]; i++)
+//     {
+//         if (ft_strcmp((*ant)->location->id, node[i]->id))
+//         {
+//             (*ant)->node_weight[i]->weight = 1;
+//             return;
+//         }
+//     }
+// }
+
+// void dijkstra(t_ant **ant, t_node **node, t_node *end)
+// {
+//     t_node **BFS_NODE = NULL;
+//     t_node **tmp = NULL;
+//     int nb_links = 0;
+//     int next_nb_links = 0;
+//     int state = 1;
+//     int weight = 1;
+//     for (int i = 0; (*ant)->node_weight[i]; i++)
+//         (*ant)->node_weight[i]->weight = 0;
+//     for (int i = 0; (*ant)->location->linked_nodes[i]; i++)
+//         nb_links++;
+//     BFS_NODE = malloc(sizeof(t_node *) * (nb_links + 1));
+//     BFS_NODE[nb_links] = NULL;
+//     setDijkstraAntPos(ant, node);
+//     while (state)
+//     {
+//         state = 0;
+//         for (int i = 0; (*ant)->location->linked_nodes[i]; i++)
+//         {
+//             BFS_NODE[i] = malloc(sizeof(t_dijkstra));
+//             BFS_NODE[i] = (*ant)->location->linked_nodes[i];
+//         }
+//         for (int i = 0; BFS_NODE[i]; i++)
+//         {
+//             for (int t = 0; BFS_NODE[i]->linked_nodes[t]; t++)
+//                 next_nb_links++;
+//         }
+//         for (int i = 0; BFS_NODE[i]; i++)
+//         {
+//             for (int j = 0; (*ant)->node_weight[j]; j++)
+//             {
+//                 if (ft_strcmp((*ant)->node_weight[j]->node->id, BFS_NODE[i]->id) && (*ant)->node_weight[j]->weight == 0)
+//                 {
+//                     (*ant)->node_weight[j]->weight += weight + 1;
+//                     state = 1;
+//                 }
+//             }
+//         }
+//         tmp = malloc(sizeof(t_node *) * (next_nb_links + 1));
+//         tmp[nb_links] = NULL;
+//         free(BFS_NODE);
+//         BFS_NODE = tmp;
+//     }
+//     free(BFS_NODE);
+    
+//     for(int i = 0; (*ant)->node_weight[i];i++){
+
+//     }
+    
+// }
 // a changer en dijkstra
+
 t_node *getNearestNode(t_ant *ant, t_node **node, t_node *end)
 {
     if (ft_strcmp(ant->location->id, end->id))
         return NULL;
-    
+
     bool tmpfound = false;
     int j = 0;
     int len = 10000;
@@ -566,16 +635,25 @@ void initAnts(t_ant ***ant, t_vars global, t_node **node)
         (*ant)[i]->node_found[global.nbNode] = NULL;
         (*ant)[i]->node_found[0] = start;
         (*ant)[i]->nbNodeFound = 0;
+        // (*ant)[i]->node_weight = malloc(sizeof(t_dijkstra *) * (global.nbNode + 1));
+        // (*ant)[i]->node_weight[global.nbNode] = NULL;
+        // for (int j = 0; j < global.nbNode; j++)
+        // {
+        //     (*ant)[i]->node_weight[j] = malloc(sizeof(t_dijkstra));
+        //     (*ant)[i]->node_weight[j]->node = malloc(sizeof(t_node));
+        //     (*ant)[i]->node_weight[j]->node = node[j];
+        //     (*ant)[i]->node_weight[j]->weight = 0;
+        // }
         start->ants[i] = (*ant)[i];
     }
     ant[global.nbAnt] = NULL;
 }
 
-t_node ***add_saved_path(t_node *** node_saved_path , t_node ** tmp_saved_path)
+t_node ***add_saved_path(t_node ***node_saved_path, t_node **tmp_saved_path)
 {
     int size = 0;
-    t_node *** new_node_saved_path;
-    if(node_saved_path == NULL)
+    t_node ***new_node_saved_path;
+    if (node_saved_path == NULL)
     {
         node_saved_path = malloc(2 * sizeof(t_node **));
         node_saved_path[0] = tmp_saved_path;
@@ -583,30 +661,30 @@ t_node ***add_saved_path(t_node *** node_saved_path , t_node ** tmp_saved_path)
     }
     else
     {
-        while(node_saved_path[size])
+        while (node_saved_path[size])
             size++;
-        new_node_saved_path  = malloc((size + 2) * sizeof(t_node **));
+        new_node_saved_path = malloc((size + 2) * sizeof(t_node **));
         size = 0;
-        while(node_saved_path[size])
+        while (node_saved_path[size])
         {
             new_node_saved_path[size] = node_saved_path[size];
             size++;
         }
         new_node_saved_path[size] = tmp_saved_path;
-        new_node_saved_path[size+1] = NULL;
+        new_node_saved_path[size + 1] = NULL;
         free(node_saved_path);
         node_saved_path = new_node_saved_path;
     }
-    return(node_saved_path);
+    return (node_saved_path);
 }
 
 void free_saved_path(t_node ***node_saved_path)
 {
     int size = 0;
-    while(node_saved_path[size])
+    while (node_saved_path[size])
     {
-       free(node_saved_path[size]);
-       size++;
+        free(node_saved_path[size]);
+        size++;
     }
     free(node_saved_path);
 }
@@ -622,7 +700,7 @@ int main(int ac, char **av)
     t_ant **ant = NULL;
 
     initStructs(&node, LEM, &global);
-    initAnts(&ant,global,node);
+    initAnts(&ant, global, node);
     t_node *end = endNode(node);
 
     display.mlx = mlx_init();
@@ -650,12 +728,13 @@ int main(int ac, char **av)
         for (int i = 0; i < global.nbAnt; i++)
         {
             t_node *nearestNode = getNearestNode(ant[i], node, end);
+            // dijkstra(&ant[i], node, end);
             if (nearestNode != NULL)
             {
                 tmp_saved_path = moveAnt(nearestNode, ant[i]);
                 if (tmp_saved_path != NULL)
                 {
-                    node_saved_path = add_saved_path(node_saved_path , tmp_saved_path);
+                    node_saved_path = add_saved_path(node_saved_path, tmp_saved_path);
                 }
             }
         }
@@ -666,7 +745,7 @@ int main(int ac, char **av)
             free_saved_path(node_saved_path);
             node_saved_path = NULL;
         }
-        //printf("------------------------------------\n");
+        // printf("------------------------------------\n");
     }
     // printNodes(node);
     exitGood(ant, window, display, node);

@@ -5,8 +5,9 @@
 
 #include "includes.h"
 
-
 typedef struct s_ant t_ant;
+// typedef struct s_dijkstra t_dijkstra;
+
 typedef struct s_node
 {
     int x;
@@ -17,19 +18,17 @@ typedef struct s_node
     char type;
     int defWeight;
     struct s_node **linked_nodes;
-    t_ant ** ants;
+    t_ant **ants;
 } t_node;
-
-
 
 typedef struct s_ant
 {
-    t_node ** node_found;
+    t_node **node_found;
     int id;
-    t_node * location;
+    t_node *location;
+    // t_dijkstra ** node_weight;
     int nbNodeFound;
 } t_ant;
-
 
 typedef struct s_window
 {
@@ -39,7 +38,6 @@ typedef struct s_window
     int line_length;
     int endian;
 } t_window;
-
 
 typedef struct s_display
 {
@@ -61,12 +59,17 @@ typedef struct s_vars
     int nbNode;
 } t_vars;
 
-
 typedef struct s_vec
 {
     int x;
     int y;
 } t_vec;
+
+// typedef struct s_dijkstra
+// {
+//     t_node *node;
+//     int weight;
+// } t_dijkstra;
 
 t_node *create_new_node(int x, int y, char *id, char type);
 int get_linked_node_len(t_node **linked_nodes);
